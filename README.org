@@ -23,3 +23,17 @@ for row in 0..<4 {
 #+END_SRC
 
 [[Screen Shot 2019-09-13 at 5.49.25 PM.png]]
+
+** Day 37
+Adding a target to a button
+#+BEGIN_SRC Swift
+        let clear = UIButton(type: .system)
+        clear.translatesAutoresizingMaskIntoConstraints = false
+        clear.setTitle("CLEAR", for: .normal)
+        clear.addTarget(self, action: #selector(clearTapped), for: .touchUpInside)
+        view.addSubview(clear)
+#+END_SRC
+array.firstIndex(of: String), string.replacingOccurrences(of:with:), string.components(separatedBy:), array.joined(separator:), string.trimmingCharacters(in: .whitespacesAndNewlines)
+Property Observers (didSet) for keeping the UI updated.
+
+[[Screen Shot 2019-09-14 at 2.27.00 PM.png]]
