@@ -23,7 +23,12 @@ class ViewController: UIViewController {
             scoreLabel.text = "Score: \(score)"
         }
     }
+    
     var level = 1
+    
+    // Challenge #3
+    // keep track of the correct answers, in order to know when to go to the next level
+    var correctAnswersCount = 0
     
     
     override func loadView() {
@@ -125,6 +130,10 @@ class ViewController: UIViewController {
 //        cluesLabel.backgroundColor = .red
 //        answersLabel.backgroundColor = .blue
 //        buttonsView.backgroundColor = .green
+        
+        // Challenge #1
+        buttonsView.layer.borderColor = UIColor.lightGray.cgColor
+        buttonsView.layer.borderWidth = CGFloat(integerLiteral: 1)
     }
 
     override func viewDidLoad() {
@@ -154,13 +163,22 @@ class ViewController: UIViewController {
             currentAnswer.text = ""
             
             score += 1
+            correctAnswersCount += 1
             
-            if score % 7 == 0 {
+            if correctAnswersCount % 7 == 0 {
                 let ac = UIAlertController(title: "Well done!", message: "Are you ready for the next level?", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "Let's go!", style: .default, handler: levelUp))
                 present(ac, animated: true)
             }
             
+        } else {
+            score -= 1
+            
+            let ac = UIAlertController(title: "Ooops!", message: "That's not right", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+            present(ac, animated: true)
+            
+            clearTapped(nil)
         }
     }
     
@@ -174,7 +192,7 @@ class ViewController: UIViewController {
         }
     }
     
-    @objc func clearTapped(_ sender: UIButton) {
+    @objc func clearTapped(_ sender: UIButton?) {
         currentAnswer.text = ""
         for button in activatedButtons {
             button.isHidden = false
@@ -186,6 +204,9 @@ class ViewController: UIViewController {
         var clueString = ""
         var solutionString = ""
         var letterBits = [String]()
+        
+        // start the count from 0 again
+        correctAnswersCount = 0
         
         if let levelFileURL = Bundle.main.url(forResource: "level\(level)", withExtension: "txt") {
             if let levelContents = try? String(contentsOf: levelFileURL) {
