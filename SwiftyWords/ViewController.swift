@@ -201,45 +201,56 @@ class ViewController: UIViewController {
     }
     
     func loadLevel() {
-        var clueString = ""
-        var solutionString = ""
-        var letterBits = [String]()
         
-        // start the count from 0 again
-        correctAnswersCount = 0
-        
-        if let levelFileURL = Bundle.main.url(forResource: "level\(level)", withExtension: "txt") {
-            if let levelContents = try? String(contentsOf: levelFileURL) {
-                // Break up the contents of the file in separate lines
-                var lines = levelContents.components(separatedBy: "\n")
-                lines.shuffle()
-                
-                for (index, line) in lines.enumerated() {
-                    let parts = line.components(separatedBy: ": ")
-                    let answer = parts[0]
-                    let clue = parts[1]
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var clueString = ""
+            var solutionString = ""
+            var letterBits = [String]()
+            
+            // start the count from 0 again
+            self?.correctAnswersCount = 0
+            
+            guard let currentLevel = self?.level else { return }
+            
+            if let levelFileURL = Bundle.main.url(forResource: "level\(currentLevel)", withExtension: "txt") {
+                if let levelContents = try? String(contentsOf: levelFileURL) {
+                    // Break up the contents of the file in separate lines
+                    var lines = levelContents.components(separatedBy: "\n")
+                    lines.shuffle()
                     
-                    clueString += "\(index + 1). \(clue)\n"
-                    let solutionWord = answer.replacingOccurrences(of: "|", with: "")
-                    solutionString += "\(solutionWord.count) letters\n"
-                    solutions.append(solutionWord)
-                    
-                    let bits = answer.components(separatedBy: "|")
-                    letterBits += bits
-                    
-                    
+                    for (index, line) in lines.enumerated() {
+                        let parts = line.components(separatedBy: ": ")
+                        let answer = parts[0]
+                        let clue = parts[1]
+                        
+                        clueString += "\(index + 1). \(clue)\n"
+                        let solutionWord = answer.replacingOccurrences(of: "|", with: "")
+                        solutionString += "\(solutionWord.count) letters\n"
+                        self?.solutions.append(solutionWord)
+                        
+                        let bits = answer.components(separatedBy: "|")
+                        letterBits += bits
+                        
+                        
+                    }
                 }
             }
+            
+            // UI updates on the Main Thread
+            DispatchQueue.main.async { [weak self] in
+                self?.cluesLabel.text = clueString.trimmingCharacters(in: .whitespacesAndNewlines)
+                self?.answersLabel.text = solutionString.trimmingCharacters(in: .whitespacesAndNewlines)
+                self?.letterButtons.shuffle()
+                if self?.letterButtons.count  == letterBits.count {
+                    guard let letterButtuonsCount = self?.letterButtons.count else { return }
+                    for i in 0..<letterButtuonsCount {
+                        self?.letterButtons[i].setTitle(letterBits[i], for: .normal)
+                    }
+                }
+            }
+            
         }
         
-        cluesLabel.text = clueString.trimmingCharacters(in: .whitespacesAndNewlines)
-        answersLabel.text = solutionString.trimmingCharacters(in: .whitespacesAndNewlines)
-        letterButtons.shuffle()
-        if letterButtons.count  == letterBits.count {
-            for i in 0..<letterButtons.count {
-                letterButtons[i].setTitle(letterBits[i], for: .normal)
-            }
-        }
     }
 }
 
